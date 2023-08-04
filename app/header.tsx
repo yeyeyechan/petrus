@@ -1,4 +1,3 @@
-"use client";
 import { css, styled } from "styled-components";
 import { Inner } from "../styles/style";
 const HeaderDiv = styled.header`

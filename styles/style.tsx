@@ -40,4 +40,7 @@ export const Inner = styled.div`
   @media screen and (min-width: 960px) {
     max-width: 960px;
   }
+  @media screen and (max-width: 708px) {
+    min-width: 708px;
+  }
 `;
