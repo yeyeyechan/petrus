@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import useWebsocket from "@/websocket/wsHandler";
 import * as StompJs from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import { makepercent, makewon } from "@/util/common";
 const callRankingData = async () => {
   const res = await fetch("http://localhost:8080/api/v1/lamp/getSoarCoin", {
     cache: "no-store",
@@ -59,25 +60,46 @@ const DataDiv = styled.div`
   line-height: 5rem;
 `;
 export const Ranking = () => {
-  const [wsrankingList, setWsRankingList] = useState([]);
-  useEffect(() => {
-    const client = new StompJs.Client({
+  const [wsrankingList, setWsRankingList] = useState<CoinRanking[]>([]);
+  const [newdata, setNewdata] = useState<CoinRanking | null>();
+  const [useClient, setUseClient] = useState<StompJs.Client>(
+    new StompJs.Client({
       brokerURL: "ws://localhost:8080/coinview-websocket",
-    });
+    })
+  );
 
-    client.onConnect = () => {
-      client?.subscribe("/coinview/getSoarCoin", (message) => {
-        setWsRankingList(JSON.parse(message.body));
-        console.log(JSON.parse(message.body));
+  useEffect(() => {
+    useClient.onConnect = () => {
+      useClient?.subscribe("/coinview/getSoarCoin", (message) => {
+        const wsdata: CoinRanking = JSON.parse(message.body);
+        setNewdata(wsdata);
       });
-      client?.publish({ destination: "/coinviewclient/call", body: "hello" });
+      useClient?.publish({
+        destination: "/coinviewclient/call",
+        body: "hello",
+      });
     };
-    client.activate();
+    useClient.activate();
+
     return () => {
-      client?.deactivate();
+      useClient?.deactivate();
     };
   }, []);
+  useEffect(() => {
+    const index = wsrankingList.findIndex((ele: CoinRanking) => {
+      return ele.market === newdata?.market;
+    });
+    const newwsrankingList: CoinRanking[] = wsrankingList.slice();
 
+    if (newdata !== undefined && newdata !== null) {
+      if (index === -1) newwsrankingList.push(newdata);
+      else newwsrankingList[index] = newdata;
+
+      setWsRankingList(newwsrankingList);
+    }
+
+    console.log(newdata);
+  }, [newdata]);
   return (
     <Section>
       <Inner>
@@ -92,9 +114,9 @@ export const Ranking = () => {
                       <CoinImg src={ele.logo}></CoinImg>
                       <CoinName>{ele.korean_name}</CoinName>
                     </NameIconDiv>
-                    <DataDiv>{ele.trade_price}</DataDiv>
-                    <DataDiv>{ele.signed_change_rate}%</DataDiv>
-                    <DataDiv>{ele.signed_change_price}</DataDiv>
+                    <DataDiv>{makewon(ele.trade_price)}</DataDiv>
+                    <DataDiv>{makepercent(ele.signed_change_rate)}</DataDiv>
+                    <DataDiv>{makewon(ele.signed_change_price)}</DataDiv>
                   </RankingDiv>
                 </RankingLi>
               );
