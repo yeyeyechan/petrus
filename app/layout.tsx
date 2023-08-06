@@ -1,4 +1,5 @@
 import { GlobalStyle } from "../styles/style";
+import { Header } from "./header";
 
 export const metadata = {
   title: "coinview",
@@ -14,7 +15,10 @@ export default function RootLayout({
     <html lang="en">
       <GlobalStyle />
 
-      <body>{children}</body>
+      <body>
+        <Header></Header>
+        {children}
+      </body>
     </html>
   );
 }

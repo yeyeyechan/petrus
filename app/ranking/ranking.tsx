@@ -89,12 +89,18 @@ export const Ranking = () => {
     const index = wsrankingList.findIndex((ele: CoinRanking) => {
       return ele.market === newdata?.market;
     });
-    const newwsrankingList: CoinRanking[] = wsrankingList.slice();
+    let newwsrankingList: CoinRanking[] = wsrankingList.slice();
 
     if (newdata !== undefined && newdata !== null) {
       if (index === -1) newwsrankingList.push(newdata);
       else newwsrankingList[index] = newdata;
 
+      newwsrankingList = newwsrankingList.filter(
+        (ele) => ele.signed_change_rate > 0.01
+      );
+      newwsrankingList.sort(
+        (a, b) => b.signed_change_rate - a.signed_change_rate
+      );
       setWsRankingList(newwsrankingList);
     }
 
