@@ -3,6 +3,6 @@ const makepercent = (numberpercent: number) => {
   return numberpercent + "%";
 };
 const makewon = (numberwon: number) => {
-  return numberwon + " 원";
+  return numberwon.toLocaleString() + " 원";
 };
 export { makepercent, makewon };

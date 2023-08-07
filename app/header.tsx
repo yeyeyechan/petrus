@@ -2,6 +2,7 @@
 import { css, styled } from "styled-components";
 import { Inner } from "../styles/style";
 const HeaderDiv = styled.header`
+  background-color: #e4e2e2;
   width: 100%;
   height: 60px;
   position: fixed;

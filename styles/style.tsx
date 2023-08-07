@@ -23,7 +23,13 @@ export const GlobalStyle = createGlobalStyle`
 
 
   }
-  
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 48
+}
   body{
     background-color: #e4e2e2;
   }
@@ -43,4 +49,11 @@ export const Inner = styled.div`
   @media screen and (max-width: 708px) {
     min-width: 708px;
   }
+`;
+export const MoreButton = styled.div`
+  width: 4rem;
+  margin: 0 auto;
+  border-radius: 2rem;
+  box-shadow: 10px 5px 5px #d5d5d5;
+  text-align: center;
 `;

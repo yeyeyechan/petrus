@@ -1,6 +1,6 @@
 "use client";
 import { styled } from "styled-components";
-import { Inner } from "../../styles/style";
+import { Inner, MoreButton } from "../../styles/style";
 import { useEffect, useRef, useState } from "react";
 import useWebsocket from "@/websocket/wsHandler";
 import * as StompJs from "@stomp/stompjs";
@@ -16,12 +16,12 @@ const callRankingData = async () => {
 const Section = styled.section`
   width: 100%;
   position: relative;
-  top: 60px;
+  top: 130px;
 `;
 const RankingContainer = styled.div`
   width: 100%;
   background-color: #f8f8f8;
-  border-radius: 9px;
+  border-radius: 1rem;
 `;
 const RankingTitle = styled.div`
   padding: 1rem 2rem;
@@ -61,13 +61,18 @@ const DataDiv = styled.div`
 `;
 export const Ranking = () => {
   const [wsrankingList, setWsRankingList] = useState<CoinRanking[]>([]);
+  const [viewwsrankingList, setViewsRankingList] = useState<CoinRanking[]>([]);
+  const [count, setCount] = useState(5);
   const [newdata, setNewdata] = useState<CoinRanking | null>();
   const [useClient, setUseClient] = useState<StompJs.Client>(
     new StompJs.Client({
       brokerURL: "ws://localhost:8080/coinview-websocket",
     })
   );
-
+  const handleClickMore = () => {
+    if (count + 5 < wsrankingList.length) setCount(count + 5);
+    else setCount(count + (wsrankingList.length - count));
+  };
   useEffect(() => {
     useClient.onConnect = () => {
       useClient?.subscribe("/coinview/getSoarCoin", (message) => {
@@ -102,17 +107,18 @@ export const Ranking = () => {
         (a, b) => b.signed_change_rate - a.signed_change_rate
       );
       setWsRankingList(newwsrankingList);
+      setViewsRankingList(newwsrankingList.slice(0, count));
     }
 
     console.log(newdata);
-  }, [newdata]);
+  }, [newdata, count]);
   return (
     <Section>
       <Inner>
         <RankingContainer>
           <RankingTitle>급등코인</RankingTitle>
           <RankingUl>
-            {wsrankingList.map((ele: CoinRanking) => {
+            {viewwsrankingList.map((ele: CoinRanking) => {
               return (
                 <RankingLi key={ele.id}>
                   <RankingDiv>
@@ -127,6 +133,15 @@ export const Ranking = () => {
                 </RankingLi>
               );
             })}
+            {count < wsrankingList.length && (
+              <MoreButton
+                onClick={() => {
+                  handleClickMore();
+                }}
+              >
+                더보기
+              </MoreButton>
+            )}
           </RankingUl>
         </RankingContainer>
       </Inner>
