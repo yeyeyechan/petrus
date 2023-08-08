@@ -60,8 +60,8 @@ const DataDiv = styled.div<{ $change?: string }>`
   width: 15%;
   height: 30%;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   animation-name: ${(props) => (props.$change === "none" ? "" : "change")};
   animation-timing-function: ease;
   animation-duration: 1s;

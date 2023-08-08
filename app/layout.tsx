@@ -1,3 +1,4 @@
+import Recoil from "@/components/Recoil";
 import { GlobalStyle } from "../styles/style";
 import { Header } from "./header";
 import { config } from "@fortawesome/fontawesome-svg-core";
@@ -23,7 +24,7 @@ export default function RootLayout({
       </head>
       <body>
         <Header></Header>
-        {children}
+        <Recoil>{children}</Recoil>
       </body>
     </html>
   );
