@@ -11,4 +11,5 @@ interface CoinRanking {
   name: string;
   slug: string;
   symbol: string;
+  change: string; //up down none;
 }

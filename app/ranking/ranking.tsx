@@ -37,6 +37,7 @@ const RankingDiv = styled.div`
   margin-bottom: 2rem;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   height: 5rem;
   border-radius: 1rem;
   box-shadow: 10px 5px 5px #d5d5d5;
@@ -45,6 +46,7 @@ const NameIconDiv = styled.div`
   display: flex;
   width: 30%;
   margin-right: 1rem;
+  align-items: center;
 `;
 const CoinImg = styled.img`
   width: 2.5rem;
@@ -52,12 +54,34 @@ const CoinImg = styled.img`
   margin-right: 1rem;
   object-fit: contain;
 `;
-const CoinName = styled.div`
-  line-height: 5rem;
-`;
-const DataDiv = styled.div`
+const CoinName = styled.div``;
+const DataDiv = styled.div<{ $change?: string }>`
+  padding: 0;
   width: 15%;
-  line-height: 5rem;
+  height: 30%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation-name: ${(props) => (props.$change === "none" ? "" : "change")};
+  animation-timing-function: ease;
+  animation-duration: 1s;
+  @keyframes change {
+    0% {
+    }
+    50% {
+      border-style: solid;
+      border-width: thin;
+      border-color: ${(props) =>
+        props.$change === "up"
+          ? "red"
+          : props.$change === "down"
+          ? "blue"
+          : "none"};
+    }
+    100% {
+      border-style: none;
+    }
+  }
 `;
 export const Ranking = () => {
   const [wsrankingList, setWsRankingList] = useState<CoinRanking[]>([]);
@@ -77,6 +101,7 @@ export const Ranking = () => {
     useClient.onConnect = () => {
       useClient?.subscribe("/coinview/getSoarCoin", (message) => {
         const wsdata: CoinRanking = JSON.parse(message.body);
+        wsdata.change = "none";
         setNewdata(wsdata);
       });
       useClient?.publish({
@@ -98,8 +123,19 @@ export const Ranking = () => {
 
     if (newdata !== undefined && newdata !== null) {
       if (index === -1) newwsrankingList.push(newdata);
-      else newwsrankingList[index] = newdata;
-
+      else {
+        if (
+          newwsrankingList[index].signed_change_price >
+          newdata.signed_change_price
+        )
+          newdata.change = "up";
+        else if (
+          newwsrankingList[index].signed_change_price <
+          newdata.signed_change_price
+        )
+          newdata.change = "down";
+        newwsrankingList[index] = newdata;
+      }
       newwsrankingList = newwsrankingList.filter(
         (ele) => ele.signed_change_rate > 0.01
       );
@@ -126,9 +162,15 @@ export const Ranking = () => {
                       <CoinImg src={ele.logo}></CoinImg>
                       <CoinName>{ele.korean_name}</CoinName>
                     </NameIconDiv>
-                    <DataDiv>{makewon(ele.trade_price)}</DataDiv>
-                    <DataDiv>{makepercent(ele.signed_change_rate)}</DataDiv>
-                    <DataDiv>{makewon(ele.signed_change_price)}</DataDiv>
+                    <DataDiv $change={ele.change}>
+                      {makewon(ele.trade_price)}
+                    </DataDiv>
+                    <DataDiv $change={ele.change}>
+                      {makepercent(ele.signed_change_rate)}
+                    </DataDiv>
+                    <DataDiv $change={ele.change}>
+                      {makewon(ele.signed_change_price)}
+                    </DataDiv>
                   </RankingDiv>
                 </RankingLi>
               );
